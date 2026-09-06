@@ -8,6 +8,7 @@ on:
       - 'PositionPreferences.h'
       - 'prefs/**'
       - 'control'
+      - 'postinst'
       - 'build.sh'
       - 'package.py'
       - '.github/workflows/release.yml'
@@ -39,9 +40,9 @@ jobs:
           cat > build/release-notes.md <<'NOTES'
           Uses Glow's original blue icon for the GlowIconPosition Settings entry, with correctly sized 29/58/87-pixel assets.
 
-          Position controls and the default position are unchanged.
+          Fixes missing directory entries that prevented the Settings bundle from installing. Adds an explicit rootless bundle path and requests Sileo's Restart SpringBoard button after installation. Position controls and the default position are unchanged.
 
-          Install this update, then respring and reopen Settings.
+          Install this update, tap Restart SpringBoard in Sileo, then open Settings → Tweaks → GlowIconPosition.
           NOTES
           gh release create "$tag" packages/*.deb --target "$GITHUB_SHA" \
             --title "GlowIconPosition $version" --notes-file build/release-notes.md

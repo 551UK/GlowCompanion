@@ -16,6 +16,8 @@
 		<true/>
 		<key>icon</key>
 		<string>GlowIconPosition.png</string>
+		<key>bundlePath</key>
+		<string>/var/jb/Library/PreferenceBundles/GlowIconPositionPrefs.bundle</string>
 	</dict>
 </dict>
 </plist>

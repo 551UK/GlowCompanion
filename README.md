@@ -30,3 +30,7 @@ Made by 551.
 ## Settings icon
 
 Version 1.1.1 uses Glow’s original blue icon, copied from the supplied Glow package as requested. The 87-pixel asset is preserved byte-for-byte, with 29- and 58-pixel variants for Settings. Icon artwork belongs to its original creator.
+
+## Installation completion
+
+Version 1.1.2 includes the parent directory entries required by dpkg to install the new preferences bundle. After configuration, the post-install script closes cached Settings and sends `finish:restart` on Sileo/Cydia’s control pipe to request the Restart SpringBoard completion button. It does not restart SpringBoard during package installation.

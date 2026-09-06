@@ -1,0 +1,20 @@
+#!/var/jb/bin/sh
+# Request Sileo/Cydia's completion button only after successful configuration.
+[ "$1" = configure ] || exit 0
+
+# Close the cached Settings process so PreferenceLoader scans the new entry.
+if [ -x /var/jb/usr/bin/killall ]; then
+    /var/jb/usr/bin/killall Preferences >/dev/null 2>&1 || true
+fi
+
+channel=${SILEO:-${CYDIA:-}}
+[ -n "$channel" ] || exit 0
+read -r control_fd protocol_version extra <<END_CHANNEL
+$channel
+END_CHANNEL
+case "$control_fd" in ''|*[!0-9]*) exit 0 ;; esac
+case "$protocol_version" in ''|*[!0-9]*) exit 0 ;; esac
+[ "$protocol_version" -ge 1 ] || exit 0
+# Use the package manager's inherited control pipe, without restarting mid-install.
+(printf 'finish:restart\n' >&"$control_fd") 2>/dev/null || true
+exit 0

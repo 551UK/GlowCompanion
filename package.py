@@ -43,9 +43,24 @@ validate_macho(binary)
 validate_macho(prefs_binary)
 
 
-def tar_gz(entries):
+def tar_gz(entries, include_directories=False):
     stream = io.BytesIO()
     with tarfile.open(fileobj=stream, mode='w', format=tarfile.USTAR_FORMAT) as archive:
+        if include_directories:
+            directories = {'.'}
+            for name, _, _ in entries:
+                parent = pathlib.PurePosixPath(name).parent
+                while str(parent) != '.':
+                    directories.add('./' + str(parent))
+                    parent = parent.parent
+            for name in sorted(directories, key=lambda d: (d.count('/'), d)):
+                item = tarfile.TarInfo(name + '/')
+                item.type = tarfile.DIRTYPE
+                item.mode = 0o755
+                item.uid = item.gid = 0
+                item.uname = item.gname = 'root'
+                item.mtime = 0
+                archive.addfile(item)
         for name, data, mode in entries:
             item = tarfile.TarInfo(name)
             item.size, item.mode = len(data), mode
@@ -55,7 +70,9 @@ def tar_gz(entries):
             archive.addfile(item, io.BytesIO(data))
     return gzip.compress(stream.getvalue(), mtime=0)
 
-control = tar_gz([('./control', (ROOT / 'control').read_bytes(), 0o644)])
+control_entries = [('./control', (ROOT / 'control').read_bytes(), 0o644),
+                   ('./postinst', (ROOT / 'postinst').read_bytes(), 0o755)]
+control = tar_gz(control_entries)
 base = './var/jb/Library/MobileSubstrate/DynamicLibraries/'
 entries = [(base + 'GlowIconPosition.dylib', binary, 0o755),
            (base + 'GlowIconPosition.plist', (ROOT / 'GlowIconPosition.plist').read_bytes(), 0o644)]
@@ -81,7 +98,7 @@ for scale, suffix in [(1, ''), (2, '@2x'), (3, '@3x')]:
                     (bundle + f'GlowIconPosition{suffix}.png', icon, 0o644),
                     (bundle + f'icon{suffix}.png', icon, 0o644)])
 assert len({e[0] for e in entries}) == len(entries)
-data = tar_gz(entries)
+data = tar_gz(entries, include_directories=True)
 out = bytearray(b'!<arch>\n')
 for name, body in [('debian-binary', b'2.0\n'), ('control.tar.gz', control), ('data.tar.gz', data)]:
     header = f'{name + "/":<16}{0:<12}{0:<6}{0:<6}{"100644":<8}{len(body):<10}`\n'.encode('ascii')
@@ -94,9 +111,21 @@ path.parent.mkdir(exist_ok=True)
 path.write_bytes(out)
 # Confirm payload inventory and byte identity; never ship the supplied Glow DEB.
 with tarfile.open(fileobj=io.BytesIO(data), mode='r:gz') as archive:
-    assert archive.getnames() == [e[0] for e in entries]
+    assert [m.name for m in archive.getmembers() if m.isfile()] == [e[0] for e in entries]
+    members = {m.name: m for m in archive.getmembers()}
+    for name, _, _ in entries:
+        parent = pathlib.PurePosixPath(name).parent
+        while str(parent) != '.':
+            directory = members['./' + str(parent)]
+            assert directory.isdir() and directory.mode == 0o755
+            assert directory.uid == directory.gid == 0
+            parent = parent.parent
     for name, content, mode in entries:
         item = archive.getmember(name)
         assert item.uid == item.gid == 0 and item.mode == mode
         assert archive.extractfile(item).read() == content
 print(f'Validated DEB: {path.name} ({path.stat().st_size} bytes)')
+
+with tarfile.open(fileobj=io.BytesIO(control), mode='r:gz') as archive:
+    assert archive.getmember('./postinst').mode == 0o755
+    assert archive.extractfile('./postinst').read() == (ROOT / 'postinst').read_bytes()
