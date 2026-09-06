@@ -47,14 +47,10 @@ jobs:
             echo "Release $tag already exists. Increase Version in control."
             exit 1
           fi
-          cat > build/release-notes.md <<'NOTES'
-          Adds an Enable GlowIconPosition switch at the top of the Settings page. It defaults to ON.
-
-          Turning it OFF stops GlowIconPosition from repositioning the notification icons and restores Glow's own original icon placement. Turning it back ON reapplies the saved position without requiring a respring.
-
-          Keeps the vertical position slider, up/down buttons, reset, Glow-style Settings icon, GitHub link and Sileo Restart SpringBoard completion button.
-
-          Install, tap Restart SpringBoard, then open Settings → Tweaks → GlowIconPosition.
-          NOTES
+          gh release list --limit 100 --json tagName --jq '.[].tagName' | while read -r old_tag; do
+            [ -z "$old_tag" ] && continue
+            [ "$old_tag" = "$tag" ] && continue
+            gh release delete "$old_tag" --cleanup-tag --yes
+          done
           gh release create "$tag" packages/*.deb --target "$GITHUB_SHA" \
-            --title "GlowIconPosition $version" --notes-file build/release-notes.md
+            --title "GlowIconPosition $version" --notes ""

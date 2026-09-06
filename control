@@ -1,8 +1,8 @@
 Package: com.551.glowiconposition
 Name: GlowIconPosition
-Version: 1.1.4
+Version: 1.1.5
 Architecture: iphoneos-arm64
-Description: Adjust Glow notification icons vertically from Settings, with an enable switch. Original GlowIconPosition position is the default.
+Description: Moves all Glow notification icons up or down together from Settings. The tweak's default position places the icon row just below the notch. Includes an enable switch, vertical position slider, move up/down controls and reset.
 Maintainer: 551
 Author: 551
 Section: Tweaks
