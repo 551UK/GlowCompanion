@@ -18,7 +18,7 @@ static inline BOOL GIPReadEnabled(void) {
 }
 
 static inline void GIPWriteEnabled(BOOL enabled) {
-    CFPreferencesSetAppValue(GIP_ENABLED_KEY, (__bridge CFBooleanRef)(enabled ? kCFBooleanTrue : kCFBooleanFalse), GIP_DOMAIN);
+    CFPreferencesSetAppValue(GIP_ENABLED_KEY, enabled ? kCFBooleanTrue : kCFBooleanFalse, GIP_DOMAIN);
     CFPreferencesAppSynchronize(GIP_DOMAIN);
     CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), GIP_CHANGED, NULL, NULL, true);
 }
