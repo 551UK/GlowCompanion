@@ -8,10 +8,8 @@
 #import "PositionPreferences.h"
 
 static double verticalOffset;
-static void preferencesChanged(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo) {
-    (void)center; (void)observer; (void)name; (void)object; (void)userInfo;
-    dispatch_async(dispatch_get_main_queue(), ^{ verticalOffset = GIPReadOffset(); });
-}
+static BOOL tweakEnabled = YES;
+static __weak SKScene *lastScene;
 
 // Glow 0.6-12 keeps all notification icons in this single SKNode ivar.
 static Ivar iconsIvar;
@@ -20,7 +18,31 @@ static void (*originalRepopulate)(id, SEL);
 static void (*originalDidFinishUpdate)(id, SEL);
 typedef void (*HookMessage)(Class, SEL, IMP, IMP *);
 
+static void moveIcons(SKScene *scene);
+
+static void preferencesChanged(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo) {
+    (void)center; (void)observer; (void)name; (void)object; (void)userInfo;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        BOOL wasEnabled = tweakEnabled;
+        verticalOffset = GIPReadOffset();
+        tweakEnabled = GIPReadEnabled();
+
+        SKScene *scene = lastScene;
+        if (!scene || !installed) return;
+
+        if (tweakEnabled) {
+            moveIcons(scene);
+        } else if (wasEnabled && originalRepopulate) {
+            // Rebuild Glow's icon row through the original implementation so
+            // disabling the tweak immediately restores Glow's own placement.
+            originalRepopulate(scene, sel_registerName("repopulateAppIcons"));
+        }
+    });
+}
+
 static void moveIcons(SKScene *scene) {
+    if (!tweakEnabled) return;
+
     SKNode *icons = object_getIvar(scene, iconsIvar);
     SKView *view = scene.view;
     if (!icons || !view || !icons.parent || icons.children.count == 0) return;
@@ -61,11 +83,13 @@ static void moveIcons(SKScene *scene) {
 }
 
 static void repopulate(id self, SEL cmd) {
+    lastScene = (SKScene *)self;
     originalRepopulate(self, cmd);
     moveIcons(self);
 }
 
 static void didFinishUpdate(id self, SEL cmd) {
+    lastScene = (SKScene *)self;
     if (originalDidFinishUpdate) originalDidFinishUpdate(self, cmd);
     // SpriteKit invokes this after actions/constraints, so Glow's animations
     // cannot pull the icon row back to the center before rendering.
@@ -88,7 +112,7 @@ static void installHooks(void) {
     installed = YES;
     hook(cls, sel_registerName("repopulateAppIcons"), (IMP)repopulate, (IMP *)&originalRepopulate);
     hook(cls, @selector(didFinishUpdate), (IMP)didFinishUpdate, (IMP *)&originalDidFinishUpdate);
-    NSLog(@"[GlowIconPosition] Notification icon positioning enabled");
+    NSLog(@"[GlowIconPosition] Notification icon positioning hooks installed");
 }
 
 static void imageAdded(const struct mach_header *header, intptr_t slide) {
@@ -98,7 +122,11 @@ static void imageAdded(const struct mach_header *header, intptr_t slide) {
     const char *name = strrchr(info.dli_fname, '/');
     name = name ? name + 1 : info.dli_fname;
     if (strcasecmp(name, "glow.dylib") == 0)
-        dispatch_async(dispatch_get_main_queue(), ^{ verticalOffset = GIPReadOffset(); installHooks(); });
+        dispatch_async(dispatch_get_main_queue(), ^{
+            verticalOffset = GIPReadOffset();
+            tweakEnabled = GIPReadEnabled();
+            installHooks();
+        });
 }
 
 __attribute__((constructor)) static void initialize(void) {
@@ -106,5 +134,9 @@ __attribute__((constructor)) static void initialize(void) {
     // Defer Objective-C lookups until runtime image registration completes.
     // The image callback also covers Glow loading after this companion.
     _dyld_register_func_for_add_image(imageAdded);
-    dispatch_async(dispatch_get_main_queue(), ^{ verticalOffset = GIPReadOffset(); installHooks(); });
+    dispatch_async(dispatch_get_main_queue(), ^{
+        verticalOffset = GIPReadOffset();
+        tweakEnabled = GIPReadEnabled();
+        installHooks();
+    });
 }

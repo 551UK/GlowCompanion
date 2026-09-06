@@ -2,8 +2,10 @@
 #import "../PositionPreferences.h"
 
 @interface GIPSettingsTableController : UITableViewController
+@property(nonatomic, strong) UISwitch *enabledSwitch;
 @property(nonatomic, strong) UISlider *positionSlider;
 @property(nonatomic, strong) UILabel *offsetLabel;
+- (void)refreshEnabled;
 - (void)refreshPosition;
 - (void)moveUp;
 - (void)moveDown;
@@ -15,41 +17,74 @@
     [super viewDidLoad];
     self.tableView.accessibilityIdentifier = @"GIPSettingsTable";
     self.tableView.rowHeight = 50;
+
+    self.enabledSwitch = [[UISwitch alloc] init];
+    self.enabledSwitch.accessibilityLabel = @"Enable GlowIconPosition";
+    self.enabledSwitch.accessibilityIdentifier = @"GIPEnabledSwitch";
+    [self.enabledSwitch addTarget:self action:@selector(enabledChanged:) forControlEvents:UIControlEventValueChanged];
+
     self.positionSlider = [[UISlider alloc] init];
     self.positionSlider.minimumValue = -75;
     self.positionSlider.maximumValue = 700;
     self.positionSlider.accessibilityLabel = @"Vertical icon offset";
     self.positionSlider.accessibilityIdentifier = @"GIPPositionSlider";
     [self.positionSlider addTarget:self action:@selector(sliderChanged:) forControlEvents:UIControlEventValueChanged];
+
     self.offsetLabel = [[UILabel alloc] init];
     self.offsetLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
     self.offsetLabel.textAlignment = NSTextAlignmentCenter;
     self.offsetLabel.accessibilityIdentifier = @"GIPCurrentOffset";
+
+    [self refreshEnabled];
     [self refreshPosition];
 }
+
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+    [self refreshEnabled];
     [self refreshPosition];
 }
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView { (void)tableView; return 2; }
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView { (void)tableView; return 3; }
+
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    (void)tableView; return section == 0 ? 5 : 1;
+    (void)tableView;
+    if (section == 0) return 1;
+    if (section == 1) return 5;
+    return 1;
 }
+
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-    (void)tableView; return section == 0 ? @"Icon position" : @"About";
+    (void)tableView;
+    if (section == 1) return @"Icon position";
+    if (section == 2) return @"About";
+    return nil;
 }
+
 - (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section {
     (void)tableView;
-    if (section == 1) return @"Moves all Glow notification icons together. Date, time and battery stay in place. Requires Glow. Made by 551.";
-    return @"0 keeps the original working position. Negative values move up; positive values move down. Changes apply when Glow next appears, without another respring. The row stays within the screen edges.";
+    if (section == 0) return @"Turn this off to let Glow use its original icon position. No respring is required when changing this switch.";
+    if (section == 1) return @"0 keeps the original GlowIconPosition working position. Negative values move up; positive values move down. Changes apply when Glow next appears, without another respring. The row stays within the screen edges.";
+    return @"Moves all Glow notification icons together. Date, time and battery stay in place. Requires Glow. Made by 551.";
 }
+
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    (void)tableView; return indexPath.section == 0 && indexPath.row == 1 ? 64 : 50;
+    (void)tableView;
+    return indexPath.section == 1 && indexPath.row == 1 ? 64 : 50;
 }
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     (void)tableView;
     UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
-    if (indexPath.section == 0 && indexPath.row < 2) {
+
+    if (indexPath.section == 0) {
+        cell.textLabel.text = @"Enable GlowIconPosition";
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+        cell.accessoryView = self.enabledSwitch;
+        return cell;
+    }
+
+    if (indexPath.section == 1 && indexPath.row < 2) {
         UIView *content = indexPath.row == 0 ? self.offsetLabel : self.positionSlider;
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
         content.translatesAutoresizingMaskIntoConstraints = NO;
@@ -59,31 +94,40 @@
             [content.trailingAnchor constraintEqualToAnchor:cell.contentView.layoutMarginsGuide.trailingAnchor],
             [content.centerYAnchor constraintEqualToAnchor:cell.contentView.centerYAnchor]
         ]];
+        return cell;
+    }
+
+    cell.textLabel.textColor = self.view.tintColor;
+    cell.accessibilityTraits |= UIAccessibilityTraitButton;
+    if (indexPath.section == 2) {
+        cell.textLabel.text = @"GitHub repository";
+        cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     } else {
-        cell.textLabel.textColor = self.view.tintColor;
-        cell.accessibilityTraits |= UIAccessibilityTraitButton;
-        if (indexPath.section == 1) {
-            cell.textLabel.text = @"GitHub repository";
-            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-        } else {
-            cell.textLabel.text = @[@"Move up 10 pt", @"Move down 10 pt", @"Reset to default position"][indexPath.row - 2];
-        }
+        cell.textLabel.text = @[@"Move up 10 pt", @"Move down 10 pt", @"Reset to default position"][indexPath.row - 2];
     }
     return cell;
 }
+
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
-    if (indexPath.section == 1) {
+    if (indexPath.section == 2) {
         [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://github.com/551UK/GlowCompanion"] options:@{} completionHandler:nil];
-    } else if (indexPath.row == 2) { [self moveUp]; }
-    else if (indexPath.row == 3) { [self moveDown]; }
-    else if (indexPath.row == 4) { [self resetPosition]; }
+    } else if (indexPath.section == 1 && indexPath.row == 2) { [self moveUp]; }
+    else if (indexPath.section == 1 && indexPath.row == 3) { [self moveDown]; }
+    else if (indexPath.section == 1 && indexPath.row == 4) { [self resetPosition]; }
 }
+
+- (void)refreshEnabled {
+    self.enabledSwitch.on = GIPReadEnabled();
+}
+
 - (void)refreshPosition {
     double value = GIPReadOffset();
     self.positionSlider.value = (float)value;
     self.offsetLabel.text = value == 0 ? @"Default position (0 pt)" : [NSString stringWithFormat:@"%.0f pt %@", fabs(value), value < 0 ? @"up" : @"down"];
 }
+
+- (void)enabledChanged:(UISwitch *)sender { GIPWriteEnabled(sender.isOn); [self refreshEnabled]; }
 - (void)sliderChanged:(UISlider *)slider { GIPWriteOffset(slider.value); [self refreshPosition]; }
 - (void)moveUp { GIPWriteOffset(GIPReadOffset() - 10); [self refreshPosition]; }
 - (void)moveDown { GIPWriteOffset(GIPReadOffset() + 10); [self refreshPosition]; }
