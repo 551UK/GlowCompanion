@@ -21,7 +21,7 @@ platform: ios
 install-name: /System/Library/PrivateFrameworks/Preferences.framework/Preferences
 exports:
   - archs: [ arm64, arm64e ]
-    objc-classes: [ PSListController, PSSpecifier ]
+    objc-classes: [ PSViewController ]
 ...
 TBD
 xcrun --sdk iphoneos clang -isysroot "$sdk_path" \

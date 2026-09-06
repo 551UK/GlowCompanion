@@ -1,6 +1,6 @@
 Package: com.551.glowiconposition
 Name: GlowIconPosition
-Version: 1.1.2
+Version: 1.1.3
 Architecture: iphoneos-arm64
 Description: Adjust Glow notification icons vertically from Settings. Original position is the default.
 Maintainer: 551

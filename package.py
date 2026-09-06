@@ -79,7 +79,7 @@ entries = [(base + 'GlowIconPosition.dylib', binary, 0o755),
 bundle = './var/jb/Library/PreferenceBundles/GlowIconPositionPrefs.bundle/'
 loader = './var/jb/Library/PreferenceLoader/Preferences/'
 entries.append((bundle + 'GlowIconPositionPrefs', prefs_binary, 0o755))
-for name in ['Info.plist', 'Root.plist']:
+for name in ['Info.plist']:
     content = (ROOT / 'prefs' / name).read_bytes()
     plistlib.loads(content)
     entries.append((bundle + name, content, 0o644))

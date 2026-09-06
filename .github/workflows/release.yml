@@ -9,6 +9,7 @@ on:
       - 'prefs/**'
       - 'control'
       - 'postinst'
+      - 'tests/**'
       - 'build.sh'
       - 'package.py'
       - '.github/workflows/release.yml'
@@ -22,10 +23,19 @@ jobs:
       - uses: actions/checkout@v4
       - name: Compile, sign and validate rootless DEB
         run: bash build.sh
+      - name: Verify settings UI and controls in Simulator
+        run: bash tests/settings-smoke.sh
       - uses: actions/upload-artifact@v4
         with:
           name: GlowIconPosition-DEB
           path: packages/*.deb
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Settings-UI-check
+          path: |
+            build/settings-preview.png
+            build/settings-smoke.txt
           if-no-files-found: error
       - name: Publish release
         env:
@@ -38,11 +48,13 @@ jobs:
             exit 1
           fi
           cat > build/release-notes.md <<'NOTES'
-          Uses Glow's original blue icon for the GlowIconPosition Settings entry, with correctly sized 29/58/87-pixel assets.
+          Replaces the blank preference page with a directly constructed UIKit settings screen containing the position slider, current offset, up/down buttons, reset, description and GitHub link.
 
-          Fixes missing directory entries that prevented the Settings bundle from installing. Adds an explicit rootless bundle path and requests Sileo's Restart SpringBoard button after installation. Position controls and the default position are unchanged.
+          Keeps the original Glow icon, offset-0 default and Sileo respring completion button.
 
-          Install this update, tap Restart SpringBoard in Sileo, then open Settings → Tweaks → GlowIconPosition.
+          Install, tap Restart SpringBoard, then open Settings → Tweaks → GlowIconPosition.
+
+          The settings UI and controls are checked in an iOS Simulator harness. Actual PreferenceLoader integration still needs confirmation on your jailbroken device.
           NOTES
           gh release create "$tag" packages/*.deb --target "$GITHUB_SHA" \
             --title "GlowIconPosition $version" --notes-file build/release-notes.md

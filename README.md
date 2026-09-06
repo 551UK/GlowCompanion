@@ -34,3 +34,7 @@ Version 1.1.1 uses Glow’s original blue icon, copied from the supplied Glow pa
 ## Installation completion
 
 Version 1.1.2 includes the parent directory entries required by dpkg to install the new preferences bundle. After configuration, the post-install script closes cached Settings and sends `finish:restart` on Sileo/Cydia’s control pipe to request the Restart SpringBoard completion button. It does not restart SpringBoard during package installation.
+
+## Settings page rendering
+
+Version 1.1.3 replaces the specifier/plist-based page with a UIKit table embedded in a `PSViewController`, eliminating the dependency on Preferences’ specifier cache and Root.plist lookup. A Simulator harness checks the same content controller for visible controls, preference persistence, up/down changes and reset. Its shim only supplies the private base class; it does not claim to test PreferenceLoader on a jailbroken device.
