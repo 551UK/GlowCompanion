@@ -11,6 +11,6 @@ xcrun --sdk iphoneos clang -isysroot "$sdk_path" \
   GlowIconPosition.m -o build/GlowIconPosition.dylib
 codesign --force --sign - --timestamp=none build/GlowIconPosition.dylib
 codesign --verify --strict --verbose=2 build/GlowIconPosition.dylib
-xcrun lipo -verify_arch arm64 arm64e build/GlowIconPosition.dylib
+xcrun lipo build/GlowIconPosition.dylib -verify_arch arm64 arm64e
 xcrun otool -L build/GlowIconPosition.dylib
 python3 package.py
