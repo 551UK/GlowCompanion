@@ -1,5 +1,5 @@
-Package: com.551.glowcompanion
-Name: GlowCompanion
+Package: com.551.glowiconposition
+Name: GlowIconPosition
 Version: 1.0.0
 Architecture: iphoneos-arm64
 Description: Moves Glow's entire notification icon row to the top below the notch.

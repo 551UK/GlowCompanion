@@ -1,12 +1,12 @@
-# GlowCompanion
+# GlowIconPosition
 
 Moves Glow's entire notification icon row to the top of the screen, below the notch. Every icon in the row moves together, including icons added by new notifications. Glow's date, time, battery and charging widgets stay in their original positions.
 
 ## Install
 
-Keep Glow installed, install the rootless DEB from [Releases](https://github.com/551UK/GlowCompanion/releases), then respring. There are no settings to configure. If you use Choicy, allow both Glow and GlowCompanion in SpringBoard.
+Keep Glow installed, install the rootless DEB from [Releases](https://github.com/551UK/GlowCompanion/releases), then respring. There are no settings to configure. If you use Choicy, allow both Glow and GlowIconPosition in SpringBoard.
 
-Remove GlowCompanion and respring to restore Glow's original icon position.
+Remove GlowIconPosition and respring to restore Glow's original icon position.
 
 ## Compatibility
 

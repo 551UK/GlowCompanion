@@ -10,9 +10,9 @@ import tarfile
 ROOT = pathlib.Path(__file__).resolve().parent
 fields = dict(line.split(': ', 1) for line in (ROOT / 'control').read_text().splitlines())
 assert fields['Architecture'] == 'iphoneos-arm64'
-plist = plistlib.loads((ROOT / 'GlowCompanion.plist').read_bytes())
+plist = plistlib.loads((ROOT / 'GlowIconPosition.plist').read_bytes())
 assert plist == {'Filter': {'Bundles': ['com.apple.springboard']}}
-binary = (ROOT / 'build/GlowCompanion.dylib').read_bytes()
+binary = (ROOT / 'build/GlowIconPosition.dylib').read_bytes()
 assert binary[:4] == b'\xca\xfe\xba\xbe', 'Expected universal signed Mach-O'
 arch_count = struct.unpack_from('>I', binary, 4)[0]
 arches = [struct.unpack_from('>IIIII', binary, 8 + 20*i) for i in range(arch_count)]
@@ -52,8 +52,8 @@ def tar_gz(entries):
 
 control = tar_gz([('./control', (ROOT / 'control').read_bytes(), 0o644)])
 base = './var/jb/Library/MobileSubstrate/DynamicLibraries/'
-entries = [(base + 'GlowCompanion.dylib', binary, 0o755),
-           (base + 'GlowCompanion.plist', (ROOT / 'GlowCompanion.plist').read_bytes(), 0o644)]
+entries = [(base + 'GlowIconPosition.dylib', binary, 0o755),
+           (base + 'GlowIconPosition.plist', (ROOT / 'GlowIconPosition.plist').read_bytes(), 0o644)]
 data = tar_gz(entries)
 out = bytearray(b'!<arch>\n')
 for name, body in [('debian-binary', b'2.0\n'), ('control.tar.gz', control), ('data.tar.gz', data)]:

@@ -71,11 +71,11 @@ static void installHooks(void) {
         void *handle = dlopen("/var/jb/usr/lib/libsubstrate.dylib", RTLD_NOW);
         if (handle) hook = (HookMessage)dlsym(handle, "MSHookMessageEx");
     }
-    if (!hook) { NSLog(@"[GlowCompanion] Hook library unavailable"); return; }
+    if (!hook) { NSLog(@"[GlowIconPosition] Hook library unavailable"); return; }
     installed = YES;
     hook(cls, sel_registerName("repopulateAppIcons"), (IMP)repopulate, (IMP *)&originalRepopulate);
     hook(cls, @selector(didFinishUpdate), (IMP)didFinishUpdate, (IMP *)&originalDidFinishUpdate);
-    NSLog(@"[GlowCompanion] Notification icon positioning enabled");
+    NSLog(@"[GlowIconPosition] Notification icon positioning enabled");
 }
 
 static void imageAdded(const struct mach_header *header, intptr_t slide) {

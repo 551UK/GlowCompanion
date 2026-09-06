@@ -3,8 +3,8 @@ on:
   push:
     branches: [main]
     paths:
-      - 'GlowCompanion.m'
-      - 'GlowCompanion.plist'
+      - 'GlowIconPosition.m'
+      - 'GlowIconPosition.plist'
       - 'control'
       - 'build.sh'
       - 'package.py'
@@ -21,7 +21,7 @@ jobs:
         run: bash build.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: GlowCompanion-DEB
+          name: GlowIconPosition-DEB
           path: packages/*.deb
           if-no-files-found: error
       - name: Publish release
@@ -37,9 +37,9 @@ jobs:
           cat > build/release-notes.md <<'NOTES'
           Moves Glow's entire notification icon row to the top, below the notch. All notification icons move together; date, time and battery widgets stay in place.
 
-          **Install:** Keep Glow installed, install this rootless DEB, then respring. No settings required. Remove GlowCompanion and respring to undo.
+          **Install:** Keep Glow installed, install this rootless DEB, then respring. No settings required. Remove GlowIconPosition and respring to undo.
 
           Targets iOS 16.2 / Dopamine and Glow 0.6-12. Includes arm64 and arm64e. Build, signing and package validation passed; on-device visual testing is still required.
           NOTES
           gh release create "$tag" packages/*.deb --target "$GITHUB_SHA" \
-            --title "GlowCompanion $version" --notes-file build/release-notes.md
+            --title "GlowIconPosition $version" --notes-file build/release-notes.md
