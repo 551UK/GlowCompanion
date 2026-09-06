@@ -26,3 +26,7 @@ On macOS with Xcode's iPhoneOS SDK: `bash build.sh`.
 The GitHub Actions workflow builds, signs, validates and publishes the DEB to Releases on pushes to `main` that change the tweak or its build files. Increase `Version` in `control` for a new release; an existing release asset is never overwritten automatically.
 
 Made by 551.
+
+## Settings icon
+
+Version 1.1.1 uses Glow’s original blue icon, copied from the supplied Glow package as requested. The 87-pixel asset is preserved byte-for-byte, with 29- and 58-pixel variants for Settings. Icon artwork belongs to its original creator.

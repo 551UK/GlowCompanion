@@ -37,11 +37,11 @@ jobs:
             exit 1
           fi
           cat > build/release-notes.md <<'NOTES'
-          Adds a Settings page for moving Glow's entire notification icon row up or down. Offset 0 preserves the working v1.0.0 position. Includes a slider, 10-point adjustment buttons, reset, description, GitHub link and Settings menu icons at 29/58/87 pixels.
+          Uses Glow's original blue icon for the GlowIconPosition Settings entry, with correctly sized 29/58/87-pixel assets.
 
-          **Install:** Keep Glow installed, install this rootless DEB, then respring. Open Settings → GlowIconPosition. Changes apply when Glow next appears without another respring. Remove GlowIconPosition and respring to undo.
+          Position controls and the default position are unchanged.
 
-          Targets iOS 16.2 / Dopamine and Glow 0.6-12. Includes arm64 and arm64e. Build, signing and package validation passed. The original position was confirmed working on-device; the new settings controls still require on-device verification.
+          Install this update, then respring and reopen Settings.
           NOTES
           gh release create "$tag" packages/*.deb --target "$GITHUB_SHA" \
             --title "GlowIconPosition $version" --notes-file build/release-notes.md
