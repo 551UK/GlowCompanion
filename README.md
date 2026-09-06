@@ -4,37 +4,17 @@ Moves Glow's entire notification icon row below the notch by default, with an ad
 
 ## Install
 
-Keep Glow installed, install the rootless DEB from [Releases](https://github.com/551UK/GlowCompanion/releases), then respring. Open **Settings → GlowIconPosition** to adjust the row. Offset **0** keeps the working v1.0.0 position. Negative values move up and positive values move down. Use the slider, 10-point buttons or **Reset to default position**. Changes apply when Glow next appears without another respring. If you use Choicy, allow both Glow and GlowIconPosition in SpringBoard.
+Keep Glow installed, install the rootless DEB from [Releases](https://github.com/551UK/GlowCompanion/releases), then respring. Open **Settings → GlowIconPosition** to adjust the row. Offset **0** keeps the working position. Negative values move up and positive values move down. You can also use the slider. Changes apply when Glow next appears without another respring. If you use Choicy, allow both Glow and GlowIconPosition in SpringBoard.
 
-Remove GlowIconPosition and respring to restore Glow's original icon position.
+Disable the tweak in settings and respring to restore Glow's original icon position.
 
 ## Compatibility
 
 - Built for rootless iOS 15 and later, targeting iOS 16.2 / Dopamine on iPhone 12 Pro Max.
 - Implementation based on inspection of Glow 0.6-12. Other versions must retain `GlowScene` and its `_appIconsNode` ivar.
 - Glow is required separately. This package contains none of Glow's binaries and does not replace Glow or change its preferences.
-- The user confirmed v1.0.0 works on-device. Version 1.1.0 preserves that position at offset 0 and adds Settings controls. Build and package checks are automated; the new controls still require device verification.
 
 ## Implementation
 
 Hooks only `GlowScene` using the jailbreak's `MSHookMessageEx` API. Repositions the icon container after notification repopulation and at the end of SpriteKit's existing frame cycle. Converting between view and scene coordinates handles SpriteKit's inverted Y axis, anchor point and scaling. Safe-area clearance plus a 59-point minimum and 16-point gap keeps the full icon row below the notch, including badges. The preference value is cached and refreshed by Darwin notifications, with no preference reads per frame. No extra timer or background service is added. Settings uses a compiled Preferences bundle. The menu icon is packaged at 29/58/87 pixels beside its loader entry and inside its bundle, with a matching filename.
 
-## Build
-
-On macOS with Xcode's iPhoneOS SDK: `bash build.sh`.
-
-The GitHub Actions workflow builds, signs, validates and publishes the DEB to Releases on pushes to `main` that change the tweak or its build files. Increase `Version` in `control` for a new release; an existing release asset is never overwritten automatically.
-
-Made by 551.
-
-## Settings icon
-
-Version 1.1.1 uses Glow’s original blue icon, copied from the supplied Glow package as requested. The 87-pixel asset is preserved byte-for-byte, with 29- and 58-pixel variants for Settings. Icon artwork belongs to its original creator.
-
-## Installation completion
-
-Version 1.1.2 includes the parent directory entries required by dpkg to install the new preferences bundle. After configuration, the post-install script closes cached Settings and sends `finish:restart` on Sileo/Cydia’s control pipe to request the Restart SpringBoard completion button. It does not restart SpringBoard during package installation.
-
-## Settings page rendering
-
-Version 1.1.3 replaces the specifier/plist-based page with a UIKit table embedded in a `PSViewController`, eliminating the dependency on Preferences’ specifier cache and Root.plist lookup. A Simulator harness checks the same content controller for visible controls, preference persistence, up/down changes and reset. Its shim only supplies the private base class; it does not claim to test PreferenceLoader on a jailbroken device.
