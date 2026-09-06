@@ -6,7 +6,7 @@ Moves Glow's entire notification icon row below the notch by default, with an ad
 
 Keep Glow installed, install the rootless DEB from [Releases](https://github.com/551UK/GlowCompanion/releases), then respring. Open **Settings → GlowIconPosition** to adjust the row. Offset **0** keeps the working position. Negative values move up and positive values move down. You can also use the slider. Changes apply when Glow next appears without another respring. If you use Choicy, allow both Glow and GlowIconPosition in SpringBoard.
 
-Disable the tweak in settings and respring to restore Glow's original icon position.
+Disable the tweak in settings to restore Glow's original icon position.
 
 ## Compatibility
 
