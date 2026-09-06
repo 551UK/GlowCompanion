@@ -5,6 +5,13 @@
 #import <mach-o/dyld.h>
 #import <string.h>
 #import <math.h>
+#import "PositionPreferences.h"
+
+static double verticalOffset;
+static void preferencesChanged(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo) {
+    (void)center; (void)observer; (void)name; (void)object; (void)userInfo;
+    dispatch_async(dispatch_get_main_queue(), ^{ verticalOffset = GIPReadOffset(); });
+}
 
 // Glow 0.6-12 keeps all notification icons in this single SKNode ivar.
 static Ivar iconsIvar;
@@ -34,7 +41,13 @@ static void moveIcons(SKScene *scene) {
     CGFloat height = fabs([scene convertPointToView:upper].y -
                           [scene convertPointToView:lower].y);
     if (!isfinite(height) || height > bounds.size.height) return;
-    CGFloat centerY = CGRectGetMinY(bounds) + safeTop + 16.0 + height / 2.0;
+    CGFloat centerY = CGRectGetMinY(bounds) + safeTop + 16.0 + height / 2.0 + verticalOffset;
+    // Clamp the entire row inside the visible screen while allowing movement
+    // above the default notch clearance when explicitly requested.
+    CGFloat minY = CGRectGetMinY(bounds) + 2.0 + height / 2.0;
+    CGFloat maxY = CGRectGetMaxY(bounds) - MAX(view.safeAreaInsets.bottom, 8.0) - height / 2.0;
+    if (maxY < minY) return;
+    centerY = MIN(MAX(centerY, minY), maxY);
     if (centerY + height / 2.0 > CGRectGetMaxY(bounds)) return;
     CGPoint desired = [scene convertPointFromView:CGPointMake(CGRectGetMidX(bounds), centerY)];
     desired = [icons.parent convertPoint:desired fromNode:scene];
@@ -85,12 +98,13 @@ static void imageAdded(const struct mach_header *header, intptr_t slide) {
     const char *name = strrchr(info.dli_fname, '/');
     name = name ? name + 1 : info.dli_fname;
     if (strcasecmp(name, "glow.dylib") == 0)
-        dispatch_async(dispatch_get_main_queue(), ^{ installHooks(); });
+        dispatch_async(dispatch_get_main_queue(), ^{ verticalOffset = GIPReadOffset(); installHooks(); });
 }
 
 __attribute__((constructor)) static void initialize(void) {
+    CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, preferencesChanged, GIP_CHANGED, NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
     // Defer Objective-C lookups until runtime image registration completes.
     // The image callback also covers Glow loading after this companion.
     _dyld_register_func_for_add_image(imageAdded);
-    dispatch_async(dispatch_get_main_queue(), ^{ installHooks(); });
+    dispatch_async(dispatch_get_main_queue(), ^{ verticalOffset = GIPReadOffset(); installHooks(); });
 }

@@ -5,6 +5,8 @@ on:
     paths:
       - 'GlowIconPosition.m'
       - 'GlowIconPosition.plist'
+      - 'PositionPreferences.h'
+      - 'prefs/**'
       - 'control'
       - 'build.sh'
       - 'package.py'
@@ -35,11 +37,11 @@ jobs:
             exit 1
           fi
           cat > build/release-notes.md <<'NOTES'
-          Moves Glow's entire notification icon row to the top, below the notch. All notification icons move together; date, time and battery widgets stay in place.
+          Adds a Settings page for moving Glow's entire notification icon row up or down. Offset 0 preserves the working v1.0.0 position. Includes a slider, 10-point adjustment buttons, reset, description, GitHub link and Settings menu icons at 29/58/87 pixels.
 
-          **Install:** Keep Glow installed, install this rootless DEB, then respring. No settings required. Remove GlowIconPosition and respring to undo.
+          **Install:** Keep Glow installed, install this rootless DEB, then respring. Open Settings → GlowIconPosition. Changes apply when Glow next appears without another respring. Remove GlowIconPosition and respring to undo.
 
-          Targets iOS 16.2 / Dopamine and Glow 0.6-12. Includes arm64 and arm64e. Build, signing and package validation passed; on-device visual testing is still required.
+          Targets iOS 16.2 / Dopamine and Glow 0.6-12. Includes arm64 and arm64e. Build, signing and package validation passed. The original position was confirmed working on-device; the new settings controls still require on-device verification.
           NOTES
           gh release create "$tag" packages/*.deb --target "$GITHUB_SHA" \
             --title "GlowIconPosition $version" --notes-file build/release-notes.md
