@@ -21,6 +21,24 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
+      - name: Normalize Settings icon size
+        run: |
+          set -euo pipefail
+          tmp="$(mktemp -d)"
+          trap 'rm -rf "$tmp"' EXIT
+          cp prefs/icons/icon@3x.png "$tmp/source.png"
+
+          make_icon() {
+            inner="$1"
+            canvas="$2"
+            output="$3"
+            sips --resampleHeightWidth "$inner" "$inner" "$tmp/source.png" --out "$tmp/small.png" >/dev/null
+            sips --padToHeightWidth "$canvas" "$canvas" "$tmp/small.png" --out "$output" >/dev/null
+          }
+
+          make_icon 23 29 prefs/icons/icon.png
+          make_icon 46 58 prefs/icons/icon@2x.png
+          make_icon 69 87 prefs/icons/icon@3x.png
       - name: Compile, sign and validate rootless DEB
         run: bash build.sh
       - name: Verify settings UI and controls in Simulator
