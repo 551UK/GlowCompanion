@@ -1,6 +1,8 @@
 # GlowIconPosition
 
-Moves Glow's entire notification icon row below the notch by default, with an adjustable vertical offset in Settings. Every icon in the row moves together, including icons added by new notifications. Glow's date, time, battery and charging widgets stay in their original positions.
+Moves Glow's entire notification icon row below the notch by default, with an adjustable vertical offset in Settings. Every icon in the row moves together, including icons added by new notifications. Glow's date, time, battery and charging widgets stay in their original positions. 
+
+I run just the icons on glow and with the tweak move to the upper screen, reminds me of an old tweak called Dots 2 on rootful. Its pretty neat. 
 
 ## Install
 
