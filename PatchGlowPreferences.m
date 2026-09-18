@@ -18,8 +18,8 @@ static BOOL PatchScaleSpecifier(id object, BOOL *changed) {
             }
 
             NSNumber *currentDefault = dictionary[@"default"];
-            if (![currentDefault isKindOfClass:[NSNumber class]] || currentDefault.doubleValue != 3.0) {
-                dictionary[@"default"] = @3.0;
+            if (![currentDefault isKindOfClass:[NSNumber class]] || fabs(currentDefault.doubleValue - 2.20) > 0.0001) {
+                dictionary[@"default"] = @2.20;
                 *changed = YES;
             }
         }
