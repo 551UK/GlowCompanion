@@ -10,7 +10,7 @@ Keep Glow installed, install the rootless DEB from [Releases](https://github.com
 
 Disable the tweak in settings to restore Glow's original icon position.
 
-GlowIconPosition also patches `/var/jb/Library/PreferenceLoader/glow.bundle/NotificationIcons.plist` at install time. Glow's **Notification Icon Scale** default is changed from **1.3** to **2.20**, and its maximum is changed from **2.5** to **3.0**. It matches only the `ICONS_SCALE` / `iconsScale` specifier. The minimum (**0.8**) and all other Glow settings are left unchanged.
+GlowIconPosition also patches `/var/jb/Library/PreferenceBundles/Glow.bundle/NotificationIcons.plist` at install time. Glow's **Notification Icon Scale** specifier default is changed to **2.20** and its maximum is changed from **2.5** to **3.0**. The installer also sets the saved `net.limneos.glow` → `iconsScale` preference to **2.20** when it is unset or still at Glow's original **1.30** value, while preserving a custom value a user has already chosen. The minimum (**0.8**) and all other Glow settings are left unchanged.
 
 ## Compatibility
 

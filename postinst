@@ -2,15 +2,21 @@
 # Request Sileo/Cydia's completion button only after successful configuration.
 [ "$1" = configure ] || exit 0
 
-# Change Glow's Notification Icon Scale default from 1.3 to 2.20 and maximum from 2.5 to 3.0.
-# The helper matches the ICONS_SCALE/iconsScale specifier, so array order can change.
-glow_icons_plist=/var/jb/Library/PreferenceLoader/glow.bundle/NotificationIcons.plist
+# Glow keeps this page inside its actual PreferenceBundle (capital G).
+# Older builds incorrectly targeted PreferenceLoader/glow.bundle.
+glow_icons_plist=/var/jb/Library/PreferenceBundles/Glow.bundle/NotificationIcons.plist
+legacy_icons_plist=/var/jb/Library/PreferenceLoader/glow.bundle/NotificationIcons.plist
 patcher=/var/jb/usr/libexec/GlowIconPosition/GlowPrefsPatch
-if [ -f "$glow_icons_plist" ] && [ -x "$patcher" ]; then
-    "$patcher" "$glow_icons_plist" >/dev/null 2>&1 || true
+
+if [ -x "$patcher" ]; then
+    if [ -f "$glow_icons_plist" ]; then
+        "$patcher" "$glow_icons_plist" >/dev/null 2>&1 || true
+    elif [ -f "$legacy_icons_plist" ]; then
+        "$patcher" "$legacy_icons_plist" >/dev/null 2>&1 || true
+    fi
 fi
 
-# Close the cached Settings process so PreferenceLoader scans the new entry.
+# Close cached Settings so it reloads Glow's updated slider specifier.
 if [ -x /var/jb/usr/bin/killall ]; then
     /var/jb/usr/bin/killall Preferences >/dev/null 2>&1 || true
 fi
@@ -23,6 +29,5 @@ END_CHANNEL
 case "$control_fd" in ''|*[!0-9]*) exit 0 ;; esac
 case "$protocol_version" in ''|*[!0-9]*) exit 0 ;; esac
 [ "$protocol_version" -ge 1 ] || exit 0
-# Use the package manager's inherited control pipe, without restarting mid-install.
 (printf 'finish:restart\n' >&"$control_fd") 2>/dev/null || true
 exit 0
