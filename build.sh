@@ -34,4 +34,13 @@ xcrun --sdk iphoneos clang -isysroot "$sdk_path" \
 codesign --force --sign - --timestamp=none build/GlowIconPositionPrefs
 codesign --verify --strict --verbose=2 build/GlowIconPositionPrefs
 xcrun lipo build/GlowIconPositionPrefs -verify_arch arm64 arm64e
+
+xcrun --sdk iphoneos clang -isysroot "$sdk_path" \
+  -arch arm64 -arch arm64e -miphoneos-version-min=15.0 \
+  -fobjc-arc -O2 -Wall -Wextra -Werror \
+  -framework Foundation \
+  PatchGlowPreferences.m -o build/GlowPrefsPatch
+codesign --force --sign - --timestamp=none build/GlowPrefsPatch
+codesign --verify --strict --verbose=2 build/GlowPrefsPatch
+xcrun lipo build/GlowPrefsPatch -verify_arch arm64 arm64e
 python3 package.py

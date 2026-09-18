@@ -10,6 +10,8 @@ Keep Glow installed, install the rootless DEB from [Releases](https://github.com
 
 Disable the tweak in settings to restore Glow's original icon position.
 
+GlowIconPosition also patches `/var/jb/Library/PreferenceLoader/glow.bundle/NotificationIcons.plist` at install time so Glow's **Notification Icon Scale** control can go up to **3.0** instead of **2.5**. It matches only the `ICONS_SCALE` / `iconsScale` specifier. The existing default (**1.3**), minimum (**0.8**) and other Glow settings are left unchanged.
+
 ## Compatibility
 
 - Built for rootless iOS 15 and later, targeting iOS 16.2 / Dopamine on iPhone 12 Pro Max.

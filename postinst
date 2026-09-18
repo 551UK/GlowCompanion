@@ -2,6 +2,14 @@
 # Request Sileo/Cydia's completion button only after successful configuration.
 [ "$1" = configure ] || exit 0
 
+# Extend only Glow's Notification Icon Scale maximum from 2.5 to 3.0.
+# The helper matches the ICONS_SCALE/iconsScale specifier, so array order can change.
+glow_icons_plist=/var/jb/Library/PreferenceLoader/glow.bundle/NotificationIcons.plist
+patcher=/var/jb/usr/libexec/GlowIconPosition/GlowPrefsPatch
+if [ -f "$glow_icons_plist" ] && [ -x "$patcher" ]; then
+    "$patcher" "$glow_icons_plist" >/dev/null 2>&1 || true
+fi
+
 # Close the cached Settings process so PreferenceLoader scans the new entry.
 if [ -x /var/jb/usr/bin/killall ]; then
     /var/jb/usr/bin/killall Preferences >/dev/null 2>&1 || true

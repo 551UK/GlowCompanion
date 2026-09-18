@@ -39,6 +39,7 @@ def validate_macho(image_bytes):
 
 binary = (ROOT / 'build/GlowIconPosition.dylib').read_bytes()
 prefs_binary = (ROOT / 'build/GlowIconPositionPrefs').read_bytes()
+prefs_patcher = (ROOT / 'build/GlowPrefsPatch').read_bytes()
 validate_macho(binary)
 validate_macho(prefs_binary)
 
@@ -75,7 +76,8 @@ control_entries = [('./control', (ROOT / 'control').read_bytes(), 0o644),
 control = tar_gz(control_entries)
 base = './var/jb/Library/MobileSubstrate/DynamicLibraries/'
 entries = [(base + 'GlowIconPosition.dylib', binary, 0o755),
-           (base + 'GlowIconPosition.plist', (ROOT / 'GlowIconPosition.plist').read_bytes(), 0o644)]
+           (base + 'GlowIconPosition.plist', (ROOT / 'GlowIconPosition.plist').read_bytes(), 0o644),
+           ('./var/jb/usr/libexec/GlowIconPosition/GlowPrefsPatch', prefs_patcher, 0o755)]
 bundle = './var/jb/Library/PreferenceBundles/GlowIconPositionPrefs.bundle/'
 loader = './var/jb/Library/PreferenceLoader/Preferences/'
 entries.append((bundle + 'GlowIconPositionPrefs', prefs_binary, 0o755))
