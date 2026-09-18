@@ -16,6 +16,12 @@ static BOOL PatchScaleSpecifier(id object, BOOL *changed) {
                 dictionary[@"max"] = @3.0;
                 *changed = YES;
             }
+
+            NSNumber *currentDefault = dictionary[@"default"];
+            if (![currentDefault isKindOfClass:[NSNumber class]] || currentDefault.doubleValue != 3.0) {
+                dictionary[@"default"] = @3.0;
+                *changed = YES;
+            }
         }
 
         for (id value in dictionary.allValues) {

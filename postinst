@@ -2,7 +2,7 @@
 # Request Sileo/Cydia's completion button only after successful configuration.
 [ "$1" = configure ] || exit 0
 
-# Extend only Glow's Notification Icon Scale maximum from 2.5 to 3.0.
+# Change Glow's Notification Icon Scale default from 1.3 to 3.0 and maximum from 2.5 to 3.0.
 # The helper matches the ICONS_SCALE/iconsScale specifier, so array order can change.
 glow_icons_plist=/var/jb/Library/PreferenceLoader/glow.bundle/NotificationIcons.plist
 patcher=/var/jb/usr/libexec/GlowIconPosition/GlowPrefsPatch

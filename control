@@ -1,8 +1,8 @@
 Package: com.551.glowiconposition
 Name: GlowIconPosition
-Version: 1.1.7
+Version: 1.1.8
 Architecture: iphoneos-arm64
-Description: Moves all Glow notification icons up or down together from Settings and extends Glow's Notification Icon Scale maximum from 2.5 to 3.0 while keeping its default unchanged.
+Description: Moves all Glow notification icons up or down together from Settings and changes Glow's Notification Icon Scale default and maximum to 3.0.
 Maintainer: 551
 Author: 551
 Section: Tweaks
